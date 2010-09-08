@@ -1,16 +1,10 @@
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
-using System.Windows.Forms;
-
-using System.Globalization;
 using System.Collections;
-using System.Resources;
+using System.Data;
+using System.Globalization;
 using System.IO;
-
+using System.Resources;
+using System.Windows.Forms;
 using Excel = Microsoft.Office.Interop.Excel;
 
 namespace Resx2Xls
@@ -19,13 +13,11 @@ namespace Resx2Xls
     {
         object m_objOpt = System.Reflection.Missing.Value;
 
-        enum ResxToXlsOperation { Create, Build, Update };
+        enum ResxToXlsOperation { Create, Build, Utf8Properties, Update };
 
         private ResxToXlsOperation _operation;
 
-        string _summary1;
-        string _summary2;
-        string _summary3;
+        string _summary1, _summary2,_summary3, _summary4;
 
         public Resx2XlsForm()
         {
@@ -44,10 +36,13 @@ namespace Resx2Xls
             this.radioButtonCreateXls.CheckedChanged += new EventHandler(radioButton_CheckedChanged);
             this.radioButtonBuildXls.CheckedChanged += new EventHandler(radioButton_CheckedChanged);
             this.radioButtonUpdateXls.CheckedChanged += new EventHandler(radioButton_CheckedChanged);
+            this.radioButtonBuildUtf8Properties.CheckedChanged += new EventHandler(radioButton_CheckedChanged);
+
 
             _summary1 = "Operation:\r\nCreate a new Excel document ready for localization.";
             _summary2 = "Operation:\r\nBuild your localized Resource files from a Filled Excel Document.";
             _summary3 = "Operation:\r\nUpdate your Excel document with your Project Resource changes.";
+            _summary4 = "Operation:\r\nBuild a UTF8 encoded properties file from a Filled Excel Document.";
 
             this.textBoxSummary.Text = _summary1;
         }
@@ -57,6 +52,8 @@ namespace Resx2Xls
             this.radioButtonCreateXls.CheckedChanged -= new EventHandler(radioButton_CheckedChanged);
             this.radioButtonBuildXls.CheckedChanged -= new EventHandler(radioButton_CheckedChanged);
             this.radioButtonUpdateXls.CheckedChanged -= new EventHandler(radioButton_CheckedChanged);
+            this.radioButtonBuildUtf8Properties.CheckedChanged -= new EventHandler(radioButton_CheckedChanged);
+
 
             if (this.radioButtonCreateXls.Checked)
             {
@@ -74,29 +71,47 @@ namespace Resx2Xls
                 this.textBoxSummary.Text = _summary3;
             }
 
+            if (this.radioButtonBuildUtf8Properties.Checked)
+            {
+                _operation = ResxToXlsOperation.Utf8Properties;
+                this.textBoxSummary.Text = _summary4;
+            }
+
             if (((RadioButton)sender).Checked)
             {
                 if (((RadioButton)sender) == this.radioButtonCreateXls)
                 {
                     this.radioButtonBuildXls.Checked = false;
                     this.radioButtonUpdateXls.Checked = false;
+                    this.radioButtonBuildUtf8Properties.Checked = false;
                 }
 
                 if (((RadioButton)sender) == this.radioButtonBuildXls)
                 {
                     this.radioButtonCreateXls.Checked = false;
                     this.radioButtonUpdateXls.Checked = false;
+                    this.radioButtonBuildUtf8Properties.Checked = false;
                 }
 
                 if (((RadioButton)sender) == this.radioButtonUpdateXls)
                 {
                     this.radioButtonCreateXls.Checked = false;
                     this.radioButtonBuildXls.Checked = false;
+                    this.radioButtonBuildUtf8Properties.Checked = false;
                 }
+
+                if (((RadioButton)sender) == this.radioButtonUpdateXls)
+                {
+                    this.radioButtonCreateXls.Checked = false;
+                    this.radioButtonBuildXls.Checked = false;
+                    this.radioButtonUpdateXls.Checked = false;
+                }
+
             }
             this.radioButtonCreateXls.CheckedChanged += new EventHandler(radioButton_CheckedChanged);
             this.radioButtonBuildXls.CheckedChanged += new EventHandler(radioButton_CheckedChanged);
             this.radioButtonUpdateXls.CheckedChanged += new EventHandler(radioButton_CheckedChanged);
+            this.radioButtonBuildUtf8Properties.CheckedChanged += new EventHandler(radioButton_CheckedChanged);
         }
 
         public void ResxToXls(string path, bool deepSearch, string xslFile, string[] cultures, string[] excludeList, bool useFolderNamespacePrefix)
@@ -111,7 +126,12 @@ namespace Resx2Xls
             ShowXls(xslFile);
         }
 
-        private void XlsToResx(string xlsFile)
+        public void XlsToResx(string xlsFile)
+        {
+            XlsToResx(xlsFile, String.Empty);
+        }
+
+        public void XlsToResx(string xlsFile, string defaultLang)
         {
             if (!File.Exists(xlsFile))
                 return;
@@ -132,6 +152,7 @@ namespace Resx2Xls
 
             while (hasLanguage)
             {
+                
                 object val = (sheet.Cells[2, col] as Excel.Range).Text;
 
                 if (val is string)
@@ -164,19 +185,28 @@ namespace Resx2Xls
 
                             string f = pathCulture + @"\" + JustStem(fileDest) + "." + cult + ".resx";
 
+                            if (cult.Equals(defaultLang, StringComparison.InvariantCultureIgnoreCase))
+                                f = pathCulture + @"\" + JustStem(fileDest) + ".resx";
+
+
+                            
+
                             rw = new ResXResourceWriter(f);
 
                             while (readrow)
                             {
+                                
                                 string key = (sheet.Cells[row, 3] as Excel.Range).Text.ToString();
                                 object data = (sheet.Cells[row, col] as Excel.Range).Text.ToString();
 
-                                if ((key is String) & !String.IsNullOrEmpty(key))
-                                {
-                                    if (data is string)
+                                Console.WriteLine(String.Format("[{0}] {1}", cult, key));
+
+                                if ((key is String) && !String.IsNullOrEmpty(key))
                                     {
                                         string text = data as string;
 
+                                    if (!String.IsNullOrEmpty(text))
+                                    {
                                         text = text.Replace("\\r", "\r");
                                         text = text.Replace("\\n", "\n");
 
@@ -208,6 +238,118 @@ namespace Resx2Xls
 
                 col++;
             }
+            app.Quit();
+        }
+
+        public void XlsToUTF8Properties(string xlsFile, string defaultLang)
+        {
+            if (!File.Exists(xlsFile))
+                return;
+
+            string path = new FileInfo(xlsFile).DirectoryName;
+
+            Excel.Application app = new Excel.Application();
+            Excel.Workbook wb = app.Workbooks.Open(xlsFile,
+        0, false, 5, "", "", false, Excel.XlPlatform.xlWindows, "",
+        true, false, 0, true, false, false);
+
+            Excel.Sheets sheets = wb.Worksheets;
+
+            Excel.Worksheet sheet = (Excel.Worksheet)sheets.get_Item(1);
+
+            bool hasLanguage = true;
+            int col = 5;
+
+            while (hasLanguage)
+            {
+
+                object val = (sheet.Cells[2, col] as Excel.Range).Text;
+
+                if (val is string)
+                {
+                    if (!String.IsNullOrEmpty((string)val))
+                    {
+                        string cult = (string)val;
+
+                        string pathCulture = path;
+
+                        if (!System.IO.Directory.Exists(pathCulture))
+                            System.IO.Directory.CreateDirectory(pathCulture);
+
+
+                        TextWriter tw = null;
+                        //ResXResourceWriter rw = null;
+
+                        int row = 3;
+
+                        string fileSrc;
+                        string fileDest;
+                        bool readrow = true;
+
+                        while (readrow)
+                        {
+                            fileSrc = (sheet.Cells[row, 1] as Excel.Range).Text.ToString();
+                            fileDest = (sheet.Cells[row, 2] as Excel.Range).Text.ToString();
+
+                            if (String.IsNullOrEmpty(fileDest))
+                                break;
+
+                            string f = pathCulture + @"\" + JustStem(fileDest) + "_" + cult + ".properties";
+
+                            if (cult.Equals(defaultLang, StringComparison.InvariantCultureIgnoreCase))
+                                f = pathCulture + @"\" + JustStem(fileDest) + ".properties";
+
+                            tw = new StreamWriter(f);
+
+                            while (readrow)
+                            {
+
+                                string key = (sheet.Cells[row, 3] as Excel.Range).Text.ToString();
+                                object data = (sheet.Cells[row, col] as Excel.Range).Text.ToString();
+
+                                Console.WriteLine(String.Format("[{0}] {1}", cult, key));
+
+                                if ((key is String) && !String.IsNullOrEmpty(key))
+                                {
+                                    string text = data as string;
+
+                                    if (!String.IsNullOrEmpty(text))
+                                    {
+                                        text = text.Replace("\\", "&#92;");
+                                        text = text.Replace("'", "&#39;");
+                                        text = text.Replace("\n","<br/>");
+                                        //text = HttpUtility.HtmlEncode(text);
+
+                                        //rw.AddResource(new ResXDataNode(key, text));
+                                        tw.WriteLine(key + "=" + text);
+                                    }
+
+                                    row++;
+
+                                    string file = (sheet.Cells[row, 2] as Excel.Range).Text.ToString();
+
+                                    if (file != fileDest)
+                                        break;
+                                }
+                                else
+                                {
+                                    readrow = false;
+                                }
+                            }
+
+                            //rw.Close();
+                            tw.Close();
+                        }
+                    }
+                    else
+                        hasLanguage = false;
+                }
+                else
+                    hasLanguage = false;
+
+                col++;
+            }
+            app.Quit();
         }
 
         private ResxData ResxToDataSet(string path, bool deepSearch, string[] cultureList, string[] excludeList, bool useFolderNamespacePrefix)
@@ -821,6 +963,22 @@ namespace Resx2Xls
                     MessageBox.Show("Localized Resources created.", "Build", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                     break;
+
+                case ResxToXlsOperation.Utf8Properties:
+                    if (String.IsNullOrEmpty(this.textBoxXls.Text))
+                    {
+                        MessageBox.Show("You must select a the .Net Project root wich contains your updated resx files", "Utf8Properties", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                        this.wizardControl1.CurrentStepIndex = this.intermediateStepXlsSelect.StepIndex;
+
+                        return;
+                    }
+
+                    XlsToUTF8Properties(this.textBoxXls.Text, String.Empty);
+
+                    MessageBox.Show("Localized UTF8 properties resources created.", "BuildUTF8", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                    break;
                 case ResxToXlsOperation.Update:
                     if (String.IsNullOrEmpty(this.textBoxFolder.Text))
                     {
@@ -955,6 +1113,11 @@ namespace Resx2Xls
         }
 
         private void startStep1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void radioButtonUpdateXls_CheckedChanged(object sender, EventArgs e)
         {
 
         }

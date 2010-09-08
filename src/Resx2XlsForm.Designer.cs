@@ -34,6 +34,7 @@ namespace Resx2Xls
             this.wizardControl1 = new WizardBase.WizardControl();
             this.startStep1 = new WizardBase.StartStep();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.radioButtonBuildUtf8Properties = new System.Windows.Forms.RadioButton();
             this.radioButtonUpdateXls = new System.Windows.Forms.RadioButton();
             this.radioButtonBuildXls = new System.Windows.Forms.RadioButton();
             this.radioButtonCreateXls = new System.Windows.Forms.RadioButton();
@@ -82,7 +83,7 @@ namespace Resx2Xls
             // 
             // wizardControl1
             // 
-            this.wizardControl1.BackButtonEnabled = true;
+            this.wizardControl1.BackButtonEnabled = false;
             this.wizardControl1.BackButtonVisible = true;
             this.wizardControl1.CancelButtonEnabled = true;
             this.wizardControl1.CancelButtonVisible = true;
@@ -100,8 +101,8 @@ namespace Resx2Xls
             this.wizardControl1.WizardSteps.Add(this.intermediateStepOptions);
             this.wizardControl1.WizardSteps.Add(this.intermediateStepXlsSelect);
             this.wizardControl1.WizardSteps.Add(this.finishStep1);
-            this.wizardControl1.FinishButtonClick += new System.EventHandler(this.wizardControl1_FinishButtonClick);
             this.wizardControl1.CurrentStepIndexChanged += new System.EventHandler(this.wizardControl1_CurrentStepIndexChanged);
+            this.wizardControl1.FinishButtonClick += new System.EventHandler(this.wizardControl1_FinishButtonClick);
             this.wizardControl1.NextButtonClick += new WizardBase.WizardNextButtonClickEventHandler(this.wizardControl1_NextButtonClick);
             this.wizardControl1.BackButtonClick += new WizardBase.WizardClickEventHandler(this.wizardControl1_BackButtonClick);
             // 
@@ -119,25 +120,37 @@ namespace Resx2Xls
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.radioButtonBuildUtf8Properties);
             this.groupBox1.Controls.Add(this.radioButtonUpdateXls);
             this.groupBox1.Controls.Add(this.radioButtonBuildXls);
             this.groupBox1.Controls.Add(this.radioButtonCreateXls);
             this.groupBox1.Location = new System.Drawing.Point(198, 93);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(373, 100);
+            this.groupBox1.Size = new System.Drawing.Size(373, 129);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Options";
             // 
+            // radioButtonBuildUtf8Properties
+            // 
+            this.radioButtonBuildUtf8Properties.AutoSize = true;
+            this.radioButtonBuildUtf8Properties.Location = new System.Drawing.Point(45, 75);
+            this.radioButtonBuildUtf8Properties.Name = "radioButtonBuildUtf8Properties";
+            this.radioButtonBuildUtf8Properties.Size = new System.Drawing.Size(304, 17);
+            this.radioButtonBuildUtf8Properties.TabIndex = 3;
+            this.radioButtonBuildUtf8Properties.Text = "Generate utf-8 properties file from localized Excel document";
+            this.radioButtonBuildUtf8Properties.UseVisualStyleBackColor = true;
+            // 
             // radioButtonUpdateXls
             // 
             this.radioButtonUpdateXls.AutoSize = true;
-            this.radioButtonUpdateXls.Location = new System.Drawing.Point(45, 75);
+            this.radioButtonUpdateXls.Location = new System.Drawing.Point(45, 98);
             this.radioButtonUpdateXls.Name = "radioButtonUpdateXls";
             this.radioButtonUpdateXls.Size = new System.Drawing.Size(310, 17);
             this.radioButtonUpdateXls.TabIndex = 2;
             this.radioButtonUpdateXls.Text = "Update your Excel document with your .Net Project changes";
             this.radioButtonUpdateXls.UseVisualStyleBackColor = true;
+            this.radioButtonUpdateXls.CheckedChanged += new System.EventHandler(this.radioButtonUpdateXls_CheckedChanged);
             // 
             // radioButtonBuildXls
             // 
@@ -474,6 +487,7 @@ namespace Resx2Xls
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox textBoxSummary;
         private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.RadioButton radioButtonBuildUtf8Properties;
     }
 }
 
