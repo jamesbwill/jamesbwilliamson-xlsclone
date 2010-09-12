@@ -59,7 +59,7 @@ namespace Resx2Xls
             Console.WriteLine("\tpp\tChoose yes to generate properties file, no to generate resx file. Default is no.");
         }
 
-        static void RunCommandLine(string infile, string defaultLang, Boolean generateUtf8PropertiesFile)
+        public static void RunCommandLine(string infile, string defaultLang, Boolean generateUtf8PropertiesFile)
         {
             Resx2XlsForm form = new Resx2XlsForm();
             using (form)

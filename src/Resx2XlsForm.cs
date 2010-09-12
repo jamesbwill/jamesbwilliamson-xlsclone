@@ -830,7 +830,31 @@ namespace Resx2Xls
                 m_objOpt, m_objOpt, m_objOpt, m_objOpt, m_objOpt);
             wb.Close(false, m_objOpt, m_objOpt);
             app.Quit();
+
+            //ReleaseObj(app);
+            //app = null;
         }
+
+        /// <summary>
+        /// Release a COM object
+        /// </summary>
+        /// <param name="obj">resource to free</param>
+        //private void ReleaseObj(object obj)
+        //{
+        //    try
+        //    {
+        //        System.Runtime.InteropServices.Marshal.ReleaseComObject(obj);
+        //    }
+        //    catch
+        //    {
+        //        obj = null;
+        //    }
+        //    finally
+        //    {
+        //        GC.Collect();
+        //    }
+        //}
+
 
         private string[] GetCulturesFromDataSet(ResxData rd)
         {
