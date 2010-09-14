@@ -1,6 +1,6 @@
-namespace Resx2Xls
+namespace XlsLocalizationTool
 {
-    partial class Resx2XlsForm
+    partial class XlsLocalizationForm
     {
         /// <summary>
         /// Required designer variable.
@@ -108,9 +108,9 @@ namespace Resx2Xls
             // 
             // startStep1
             // 
-            this.startStep1.BindingImage = global::Resx2Xls.Properties.Resources.leftbar;
+            this.startStep1.BindingImage = global::XlsLocalizationTool.Properties.Resources.leftbar;
             this.startStep1.Controls.Add(this.groupBox1);
-            this.startStep1.Icon = global::Resx2Xls.Properties.Resources.icon;
+            this.startStep1.Icon = global::XlsLocalizationTool.Properties.Resources.icon;
             this.startStep1.Name = "startStep1";
             this.startStep1.Subtitle = "This wizard helps you to localize your .Net Project";
             this.startStep1.SubtitleFont = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
@@ -176,7 +176,7 @@ namespace Resx2Xls
             // 
             // intermediateStepProject
             // 
-            this.intermediateStepProject.BindingImage = global::Resx2Xls.Properties.Resources.topbar;
+            this.intermediateStepProject.BindingImage = global::XlsLocalizationTool.Properties.Resources.topbar;
             this.intermediateStepProject.Controls.Add(this.labelFolder);
             this.intermediateStepProject.Controls.Add(this.textBoxFolder);
             this.intermediateStepProject.Controls.Add(this.checkBoxSubFolders);
@@ -231,7 +231,7 @@ namespace Resx2Xls
             // 
             // intermediateStepCultures
             // 
-            this.intermediateStepCultures.BindingImage = global::Resx2Xls.Properties.Resources.topbar;
+            this.intermediateStepCultures.BindingImage = global::XlsLocalizationTool.Properties.Resources.topbar;
             this.intermediateStepCultures.Controls.Add(this.label5);
             this.intermediateStepCultures.Controls.Add(this.label4);
             this.intermediateStepCultures.Controls.Add(this.label3);
@@ -317,7 +317,7 @@ namespace Resx2Xls
             // 
             // intermediateStepOptions
             // 
-            this.intermediateStepOptions.BindingImage = global::Resx2Xls.Properties.Resources.topbar;
+            this.intermediateStepOptions.BindingImage = global::XlsLocalizationTool.Properties.Resources.topbar;
             this.intermediateStepOptions.Controls.Add(this.checkBoxFolderNaming);
             this.intermediateStepOptions.Controls.Add(this.label2);
             this.intermediateStepOptions.Controls.Add(this.textBoxExclude);
@@ -362,7 +362,7 @@ namespace Resx2Xls
             // 
             // intermediateStepXlsSelect
             // 
-            this.intermediateStepXlsSelect.BindingImage = global::Resx2Xls.Properties.Resources.topbar;
+            this.intermediateStepXlsSelect.BindingImage = global::XlsLocalizationTool.Properties.Resources.topbar;
             this.intermediateStepXlsSelect.Controls.Add(this.labelXlsFile);
             this.intermediateStepXlsSelect.Controls.Add(this.textBoxXls);
             this.intermediateStepXlsSelect.Controls.Add(this.buttonBrowseXls);
@@ -403,7 +403,7 @@ namespace Resx2Xls
             // 
             // finishStep1
             // 
-            this.finishStep1.BackgroundImage = global::Resx2Xls.Properties.Resources.finishbar;
+            this.finishStep1.BackgroundImage = global::XlsLocalizationTool.Properties.Resources.finishbar;
             this.finishStep1.Controls.Add(this.label6);
             this.finishStep1.Controls.Add(this.textBoxSummary);
             this.finishStep1.Name = "finishStep1";

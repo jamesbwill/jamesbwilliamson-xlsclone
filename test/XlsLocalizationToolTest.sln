@@ -1,0 +1,72 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XlsLocalizationTool", "..\src\XlsLocalizationTool.csproj", "{9A301D6B-D2B5-4C16-8F46-BF7892767FDB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XlsLocalizationToolTest", "XlsLocalizationToolTest.csproj", "{E5DA75B8-BBE4-4823-9498-20EDD807C77C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "res", "res", "{48FAEF5D-3FDF-45B6-B595-1B871B8A9930}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "excel", "excel", "{B82A7025-8000-4C93-B80C-D9490C58A1A7}"
+	ProjectSection(SolutionItems) = preProject
+		res\excel\excelSheet.xls = res\excel\excelSheet.xls
+		res\excel\excelSheet.xlsx = res\excel\excelSheet.xlsx
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "properties", "properties", "{781DACC6-DD13-4E64-8ECF-6158721B0C66}"
+	ProjectSection(SolutionItems) = preProject
+		res\properties\res1_en.properties = res\properties\res1_en.properties
+		res\properties\res1_fr.properties = res\properties\res1_fr.properties
+		res\properties\res1_ja.properties = res\properties\res1_ja.properties
+		res\properties\res2_en.properties = res\properties\res2_en.properties
+		res\properties\res2_fr.properties = res\properties\res2_fr.properties
+		res\properties\res2_ja.properties = res\properties\res2_ja.properties
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "resx", "resx", "{7186A8DD-8407-4460-BE20-03F75C1CA7B3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "fr", "fr", "{B87F8244-3BBD-45BB-8AB9-CB94452C722A}"
+	ProjectSection(SolutionItems) = preProject
+		res\resx\fr\res1.fr.resx = res\resx\fr\res1.fr.resx
+		res\resx\fr\res2.fr.resx = res\resx\fr\res2.fr.resx
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "en", "en", "{19680471-2310-4300-80EA-578C76AEE7F0}"
+	ProjectSection(SolutionItems) = preProject
+		res\resx\en\res1.en.resx = res\resx\en\res1.en.resx
+		res\resx\en\res2.en.resx = res\resx\en\res2.en.resx
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ja", "ja", "{E18C915B-195A-415A-B8E0-E85EF598F43E}"
+	ProjectSection(SolutionItems) = preProject
+		res\resx\ja\res1.ja.resx = res\resx\ja\res1.ja.resx
+		res\resx\ja\res2.ja.resx = res\resx\ja\res2.ja.resx
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9A301D6B-D2B5-4C16-8F46-BF7892767FDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A301D6B-D2B5-4C16-8F46-BF7892767FDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A301D6B-D2B5-4C16-8F46-BF7892767FDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A301D6B-D2B5-4C16-8F46-BF7892767FDB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E5DA75B8-BBE4-4823-9498-20EDD807C77C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E5DA75B8-BBE4-4823-9498-20EDD807C77C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E5DA75B8-BBE4-4823-9498-20EDD807C77C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E5DA75B8-BBE4-4823-9498-20EDD807C77C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B82A7025-8000-4C93-B80C-D9490C58A1A7} = {48FAEF5D-3FDF-45B6-B595-1B871B8A9930}
+		{781DACC6-DD13-4E64-8ECF-6158721B0C66} = {48FAEF5D-3FDF-45B6-B595-1B871B8A9930}
+		{7186A8DD-8407-4460-BE20-03F75C1CA7B3} = {48FAEF5D-3FDF-45B6-B595-1B871B8A9930}
+		{B87F8244-3BBD-45BB-8AB9-CB94452C722A} = {7186A8DD-8407-4460-BE20-03F75C1CA7B3}
+		{19680471-2310-4300-80EA-578C76AEE7F0} = {7186A8DD-8407-4460-BE20-03F75C1CA7B3}
+		{E18C915B-195A-415A-B8E0-E85EF598F43E} = {7186A8DD-8407-4460-BE20-03F75C1CA7B3}
+	EndGlobalSection
+EndGlobal

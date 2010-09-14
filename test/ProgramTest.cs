@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 
-namespace Resx2Xls
+namespace XlsLocalizationTool
 {
     /// <summary>
     /// Summary description for UnitTest1
@@ -62,11 +62,11 @@ namespace Resx2Xls
 
 
         //relative path for DeploymentItem
-        public const string TEST_RES_DIR = "..\\..\\res\\";
+        public const string TEST_RES_DIR = ".\\res\\";
         public const string TEST_EXCEL_DIR = TEST_RES_DIR + "excel\\";
 
         //relative path for the test methods
-        public const string TEST_RESX_DIR = "..\\..\\..\\test\\res\\resx\\";
+        public const string TEST_RESX_DIR = "..\\..\\..\\res\\resx\\";
         public const string TEST_RESX_RES1_EN_PATH = TEST_RESX_DIR + "en\\res1.en.resx";
         public const string TEST_RESX_RES1_FR_PATH = TEST_RESX_DIR + "fr\\res1.fr.resx";
         public const string TEST_RESX_RES1_JA_PATH = TEST_RESX_DIR + "ja\\res1.ja.resx";
@@ -74,7 +74,7 @@ namespace Resx2Xls
         public const string TEST_RESX_RES2_FR_PATH = TEST_RESX_DIR + "fr\\res2.fr.resx";
         public const string TEST_RESX_RES2_JA_PATH = TEST_RESX_DIR + "ja\\res2.ja.resx";
 
-        public const string TEST_PROPERTIES_DIR = "..\\..\\..\\test\\res\\properties\\";
+        public const string TEST_PROPERTIES_DIR = "..\\..\\..\\res\\properties\\";
         public const string TEST_PROPERTIES_RES1_EN_PATH   = TEST_PROPERTIES_DIR + "res1_en.properties";
         public const string TEST_PROPERTIES_RES1_FR_PATH   = TEST_PROPERTIES_DIR + "res1_fr.properties";
         public const string TEST_PROPERTIES_RES1_JA_PATH   = TEST_PROPERTIES_DIR + "res1_ja.properties";
@@ -88,7 +88,10 @@ namespace Resx2Xls
         {
             string dir = Directory.GetCurrentDirectory() + "\\";
 
-            Resx2Xls.Program.RunCommandLine(dir + "excelSheet.xls", "en", true);
+            if (!System.IO.Directory.Exists(dir))
+                System.IO.Directory.CreateDirectory(dir);
+
+            XlsLocalizationTool.Program.RunCommandLine(dir + "excelSheet.xls", "en", true);
             Assert.IsTrue(CompareFiles(dir + "res1.properties",     TEST_PROPERTIES_RES1_EN_PATH));
             Assert.IsTrue(CompareFiles(dir + "res1_fr.properties",  TEST_PROPERTIES_RES1_FR_PATH));
             Assert.IsTrue(CompareFiles(dir + "res1_ja.properties",  TEST_PROPERTIES_RES1_JA_PATH));
@@ -103,7 +106,10 @@ namespace Resx2Xls
         {
             string dir = Directory.GetCurrentDirectory() + "\\";
 
-            Resx2Xls.Program.RunCommandLine(dir + "excelSheet.xls", "en", false);
+            if (!System.IO.Directory.Exists(dir))
+                System.IO.Directory.CreateDirectory(dir);
+
+            XlsLocalizationTool.Program.RunCommandLine(dir + "excelSheet.xls", "en", false);
             Assert.IsTrue(CompareFiles(dir + "en\\res1.resx", TEST_RESX_RES1_EN_PATH));
             Assert.IsTrue(CompareFiles(dir + "fr\\res1.fr.resx", TEST_RESX_RES1_FR_PATH));
             Assert.IsTrue(CompareFiles(dir + "ja\\res1.ja.resx", TEST_RESX_RES1_JA_PATH));

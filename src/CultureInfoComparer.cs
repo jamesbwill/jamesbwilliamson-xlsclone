@@ -5,7 +5,7 @@ using System.Text;
 
 using System.Globalization;
 
-namespace Resx2Xls
+namespace XlsLocalizationTool
 {
     public class CultureInfoComparer : IComparer
     {

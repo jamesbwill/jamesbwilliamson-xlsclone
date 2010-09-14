@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using System.IO;
 
-namespace Resx2Xls
+namespace XlsLocalizationTool
 {
-    static class Program
+    public static class Program
     {
         /// <summary>
         /// The main entry point for the application.
@@ -47,7 +47,7 @@ namespace Resx2Xls
             {
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
-                Application.Run(new Resx2XlsForm());
+                Application.Run(new XlsLocalizationForm());
             }
         }
 
@@ -61,44 +61,40 @@ namespace Resx2Xls
 
         public static void RunCommandLine(string infile, string defaultLang, Boolean generateUtf8PropertiesFile)
         {
-            Resx2XlsForm form = new Resx2XlsForm();
-            using (form)
+            XlsLocalizationManager manager = new XlsLocalizationManager();
+            
+            FileInfo file = new FileInfo(infile);
+
+            try
             {
-
-                FileInfo file = new FileInfo(infile);
-
-                try
+                if (file.Exists)
                 {
-                    if (file.Exists)
-                    {
 
-                        if (file.Extension.Equals(".xls", StringComparison.InvariantCultureIgnoreCase) && generateUtf8PropertiesFile)
-                        {
-                            form.XlsToUTF8Properties(infile, defaultLang);
-                        }
-                        else if (file.Extension.Equals(".xls", StringComparison.InvariantCultureIgnoreCase) && !generateUtf8PropertiesFile) 
-                        {
-                            form.XlsToResx(infile, defaultLang);
-                        }
-                        else
-                        {
-                            Console.WriteLine("Command not recognized");
-                            throw new Exception("Unknown filetype");
-                        }
+                    if (file.Extension.Equals(".xls", StringComparison.InvariantCultureIgnoreCase) && generateUtf8PropertiesFile)
+                    {
+                        manager.XlsToUTF8Properties(infile, defaultLang);
+                    }
+                    else if (file.Extension.Equals(".xls", StringComparison.InvariantCultureIgnoreCase) && !generateUtf8PropertiesFile) 
+                    {
+                        manager.XlsToResx(infile, defaultLang);
                     }
                     else
                     {
-                        throw new Exception(String.Format("{0} doesn't exist", infile));
+                        Console.WriteLine("Command not recognized");
+                        throw new Exception("Unknown filetype");
                     }
-                    Console.WriteLine("Done.");
                 }
-                catch (Exception ex)
+                else
                 {
-                    Console.WriteLine(ex.Message);
-                    Environment.Exit(1);
+                    throw new Exception(String.Format("{0} doesn't exist", infile));
                 }
+                Console.WriteLine("Done.");
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                Environment.Exit(1);
+            }   
         }
-
     }
 }
