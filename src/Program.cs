@@ -72,15 +72,13 @@ namespace XlsLocalizationTool
                                         file.Extension.Equals(".xlsx", StringComparison.OrdinalIgnoreCase) ))
 
                 {
-
-
                     if (generateUtf8PropertiesFile)
                     {
-                        manager.XlsToUTF8Properties(infile, defaultLang);
+                        manager.XlsToUTF8Properties(file.FullName, defaultLang);
                     }
                     else  
                     {
-                        manager.XlsToResx(infile, defaultLang);
+                        manager.XlsToResx(file.FullName, defaultLang);
                     }
                 }
                 else
