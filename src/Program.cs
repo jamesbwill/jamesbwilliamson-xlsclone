@@ -61,26 +61,25 @@ namespace XlsLocalizationTool
 
             try
             {
-                if (file.Exists)
+            
+                if (file.Exists && (    file.Extension.Equals(".xls", StringComparison.OrdinalIgnoreCase) ||
+                                        file.Extension.Equals(".xlsx", StringComparison.OrdinalIgnoreCase) ))
+
                 {
 
-                    if (file.Extension.Equals(".xlsx", StringComparison.InvariantCultureIgnoreCase) && generateUtf8PropertiesFile)
+
+                    if (generateUtf8PropertiesFile)
                     {
                         manager.XlsToUTF8Properties(infile, defaultLang);
                     }
-                    else if (file.Extension.Equals(".xlsx", StringComparison.InvariantCultureIgnoreCase) && !generateUtf8PropertiesFile) 
+                    else  
                     {
                         manager.XlsToResx(infile, defaultLang);
                     }
-                    else
-                    {
-                        Console.WriteLine("Command not recognized");
-                        throw new Exception("Unknown filetype");
-                    }
-                }
+                                    }
                 else
                 {
-                    throw new Exception(String.Format("{0} doesn't exist", infile));
+                    throw new Exception(String.Format("{0} doesn't exist or isnt a xls/xlsx file", infile));
                 }
                 Console.WriteLine("Done.");
             }
