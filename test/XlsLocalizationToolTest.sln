@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XlsLocalizationTool", "..\src\XlsLocalizationTool.csproj", "{9A301D6B-D2B5-4C16-8F46-BF7892767FDB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XlsLocalizationTool", "..\src\XlsLocalizationTool.csproj", "{2D0FBB63-1E79-4E4B-864A-8AB0CD3A4272}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XlsLocalizationToolTest", "XlsLocalizationToolTest.csproj", "{E5DA75B8-BBE4-4823-9498-20EDD807C77C}"
 EndProject
@@ -10,7 +10,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "excel", "excel", "{B82A7025-8000-4C93-B80C-D9490C58A1A7}"
 	ProjectSection(SolutionItems) = preProject
 		res\excel\excelSheet.xls = res\excel\excelSheet.xls
-		res\excel\excelSheet.xlsx = res\excel\excelSheet.xlsx
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "properties", "properties", "{781DACC6-DD13-4E64-8ECF-6158721B0C66}"
@@ -49,10 +48,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{9A301D6B-D2B5-4C16-8F46-BF7892767FDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9A301D6B-D2B5-4C16-8F46-BF7892767FDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9A301D6B-D2B5-4C16-8F46-BF7892767FDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9A301D6B-D2B5-4C16-8F46-BF7892767FDB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D0FBB63-1E79-4E4B-864A-8AB0CD3A4272}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D0FBB63-1E79-4E4B-864A-8AB0CD3A4272}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D0FBB63-1E79-4E4B-864A-8AB0CD3A4272}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D0FBB63-1E79-4E4B-864A-8AB0CD3A4272}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E5DA75B8-BBE4-4823-9498-20EDD807C77C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E5DA75B8-BBE4-4823-9498-20EDD807C77C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E5DA75B8-BBE4-4823-9498-20EDD807C77C}.Release|Any CPU.ActiveCfg = Release|Any CPU
