@@ -43,12 +43,6 @@ namespace XlsLocalizationTool
                 
                 RunCommandLine(infile, defaultLang, generateUtf8PropertiesFile);
             }
-            else
-            {
-                Application.EnableVisualStyles();
-                Application.SetCompatibleTextRenderingDefault(false);
-                Application.Run(new XlsLocalizationForm());
-            }
         }
 
         static void Usage()

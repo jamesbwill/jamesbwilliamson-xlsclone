@@ -2,12 +2,17 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 
 using System.IO;
 using System.Resources;
 using System.Globalization;
 using System.Data;
-using Excel = Microsoft.Office.Interop.Excel;
+using System.Linq;
+
+using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace XlsLocalizationTool
 {
@@ -15,45 +20,110 @@ namespace XlsLocalizationTool
     {
         object m_objOpt = System.Reflection.Missing.Value;
 
+        private const int _fixedColumns = 4;
+        private const int _firsDataRowIndex = 3;
+        private const int _maxCultures = 10;
+
+        private enum ExcelFixedColumnNames { FileSource,  FileDest, Key, Value};
+
+        private static string GetFixedCellColumnName(ExcelFixedColumnNames fixedColumns)
+        {
+            string columnName = String.Empty;
+
+            switch (fixedColumns)
+            {
+                case ExcelFixedColumnNames.FileSource:
+                    columnName = "A";
+                    break;
+                case ExcelFixedColumnNames.FileDest:
+                    columnName = "B";
+                    break;
+                case ExcelFixedColumnNames.Key:
+                    columnName = "C";
+                    break;
+                case ExcelFixedColumnNames.Value:
+                    columnName = "D";
+                    break;
+                default:
+
+                    break;
+            }
+
+            return columnName;
+        }
+
+        private Cell FindFixedCell(ExcelFixedColumnNames fixedColumns, List<Cell> cells)
+        {
+            string columnName = GetFixedCellColumnName(fixedColumns);
+
+            return cells.Where(c => GetColumnName(c.CellReference) == columnName.ToString()).SingleOrDefault();
+        }
+
         private void DataSetToXls(ResourceData rd, string fileName)
         {
-            Excel.Application app = new Excel.Application();
-            Excel.Workbook wb = app.Workbooks.Add(Excel.XlWBATemplate.xlWBATWorksheet);
+            SpreadsheetDocument spreadsheetDocument = SpreadsheetDocument.Create(fileName, SpreadsheetDocumentType.Workbook);
 
-            Excel.Sheets sheets = wb.Worksheets;
-            Excel.Worksheet sheet = (Excel.Worksheet)sheets.get_Item(1);
-            sheet.Name = "Localize";
+            // Add a WorkbookPart to the document.
+            WorkbookPart workbookpart = spreadsheetDocument.AddWorkbookPart();
+            workbookpart.Workbook = new Workbook();
 
-            sheet.Cells[1, 1] = "Resx source";
-            sheet.Cells[1, 2] = "Resx Name";
-            sheet.Cells[1, 3] = "Key";
-            sheet.Cells[1, 4] = "Value";
+            // Add a WorksheetPart to the WorkbookPart.
+            WorksheetPart worksheetPart = workbookpart.AddNewPart<WorksheetPart>();
+            worksheetPart.Worksheet = new Worksheet(new SheetData());
+
+            // Add Sheets to the Workbook.
+            Sheets sheets = spreadsheetDocument.WorkbookPart.Workbook.AppendChild<Sheets>(new Sheets());
+
+            Sheet sheet = new Sheet() { Id = spreadsheetDocument.WorkbookPart.GetIdOfPart(worksheetPart), SheetId = 1, Name = "Localize" };
+            sheets.Append(sheet);
+
+            Cell c1 = InsertCellInWorksheet(GetFixedCellColumnName(ExcelFixedColumnNames.FileSource), 1, worksheetPart);
+            Cell c2 = InsertCellInWorksheet(GetFixedCellColumnName(ExcelFixedColumnNames.FileDest), 1, worksheetPart);
+            Cell c3 = InsertCellInWorksheet(GetFixedCellColumnName(ExcelFixedColumnNames.Key), 1, worksheetPart);
+            Cell c4 = InsertCellInWorksheet(GetFixedCellColumnName(ExcelFixedColumnNames.Value), 1, worksheetPart);
+
+            c1.Append(new CellValue("Resx source"));
+            c2.Append(new CellValue("Resx Name"));
+            c3.Append(new CellValue("Key"));
+            c4.Append(new CellValue("Value"));
 
             string[] cultures = GetCulturesFromDataSet(rd);
 
-            int index = 5;
+            int index = _fixedColumns + 1;
+
             foreach (string cult in cultures)
             {
                 CultureInfo ci = new CultureInfo(cult);
 
-                sheet.Cells[1, index] = ci.DisplayName;
-                sheet.Cells[2, index] = ci.Name;
+                string columnName = GetCultureColumnName(index);
+
+                Cell cell1 = InsertCellInWorksheet(columnName, 1, worksheetPart);
+                Cell cell2 = InsertCellInWorksheet(columnName, 2, worksheetPart);
+
+                cell1.Append(new CellValue(ci.DisplayName));
+                cell2.Append(new CellValue(ci.Name));
+
                 index++;
             }
 
             DataView dw = rd.Resource.DefaultView;
             dw.Sort = "FileSource, Key";
 
-            int row = 3;
+            uint row = _firsDataRowIndex;
 
             foreach (DataRowView drw in dw)
             {
                 ResourceData.ResourceRow r = (ResourceData.ResourceRow)drw.Row;
 
-                sheet.Cells[row, 1] = r.FileSource;
-                sheet.Cells[row, 2] = r.FileDestination;
-                sheet.Cells[row, 3] = r.Key;
-                sheet.Cells[row, 4] = r.Value;
+                Cell cell1 = InsertCellInWorksheet(GetFixedCellColumnName(ExcelFixedColumnNames.FileSource), row, worksheetPart);
+                Cell cell2 = InsertCellInWorksheet(GetFixedCellColumnName(ExcelFixedColumnNames.FileDest), row, worksheetPart);
+                Cell cell3 = InsertCellInWorksheet(GetFixedCellColumnName(ExcelFixedColumnNames.Key), row, worksheetPart);
+                Cell cell4 = InsertCellInWorksheet(GetFixedCellColumnName(ExcelFixedColumnNames.Value), row, worksheetPart);
+
+                cell1.Append(new CellValue(r.FileSource));
+                cell1.Append(new CellValue(r.FileDestination));
+                cell1.Append(new CellValue(r.Key));
+                cell1.Append(new CellValue(r.Value));
 
                 ResourceData.ResourceLocalizedRow[] rows = r.GetResourceLocalizedRows();
 
@@ -61,96 +131,237 @@ namespace XlsLocalizationTool
                 {
                     string culture = lr.Culture;
 
-                    int col = Array.IndexOf(cultures, culture);
+                    index = Array.IndexOf(cultures, culture);
 
-                    if (col >= 0)
-                        sheet.Cells[row, col + 5] = lr.Value;
+                    if (index >= 0)
+                    {
+                        string columnName = GetCultureColumnName(_fixedColumns + index + 1);
+                            
+                        Cell cell = InsertCellInWorksheet(columnName, row, worksheetPart);
+                        cell.Append(new CellValue(lr.Value));
+                    }
+
                 }
 
                 row++;
 
             }
+            workbookpart.Workbook.Save();
 
-            sheet.Cells.get_Range("A1", "Z1").EntireColumn.AutoFit();
+            // Close the document.
+            spreadsheetDocument.Close();
 
-            // Save the Workbook and quit Excel.
-            wb.SaveAs(fileName, m_objOpt, m_objOpt,
-                m_objOpt, m_objOpt, m_objOpt, Excel.XlSaveAsAccessMode.xlNoChange,
-                m_objOpt, m_objOpt, m_objOpt, m_objOpt, m_objOpt);
-            wb.Close(false, m_objOpt, m_objOpt);
-
-            app.Quit();
-            ReleaseObj(app);
-            app = null;
         }
 
         private ResourceData XlsToDataSet(string xlsFile)
         {
-            Excel.Application app = new Excel.Application();
-            Excel.Workbook wb = app.Workbooks.Open(xlsFile,
-        0, false, 5, "", "", false, Excel.XlPlatform.xlWindows, "",
-        true, false, 0, true, false, false);
-
-            Excel.Sheets sheets = wb.Worksheets;
-
-            Excel.Worksheet sheet = (Excel.Worksheet)sheets.get_Item(1);
-
             ResourceData rd = new ResourceData();
 
-            int row = 3;
-
-            bool continueLoop = true;
-            while (continueLoop)
+            using (SpreadsheetDocument spreadsheetDocument = SpreadsheetDocument.Open(xlsFile, true))
             {
-                string fileSrc = (sheet.Cells[row, 1] as Excel.Range).Text.ToString();
+                WorkbookPart workbookPart = spreadsheetDocument.WorkbookPart;
+                WorksheetPart worksheetPart = workbookPart.WorksheetParts.First();
 
-                if (String.IsNullOrEmpty(fileSrc))
-                    break;
+                SharedStringTablePart shareStringPart = GetSharedStringTablePart(workbookPart);
 
-                ResourceData.ResourceRow r = rd.Resource.NewResourceRow();
+                SheetData sheetData =
+                worksheetPart.Worksheet.Elements<SheetData>().First();
 
-                r.FileSource = (sheet.Cells[row, 1] as Excel.Range).Text.ToString();
-                r.FileDestination = (sheet.Cells[row, 2] as Excel.Range).Text.ToString();
-                r.Key = (sheet.Cells[row, 3] as Excel.Range).Text.ToString();
-                r.Value = (sheet.Cells[row, 4] as Excel.Range).Text.ToString();
+                Dictionary<string, string> cultures = GetCulturesFromXls(sheetData, shareStringPart);
 
-                rd.Resource.AddResourceRow(r);
-
-                bool hasCulture = true;
-                int col = 5;
-                while (hasCulture)
+                IEnumerable<Row> rows = sheetData.Elements<Row>().Where(r => r.RowIndex >= _firsDataRowIndex);
+                
+                foreach (Row row in rows)
                 {
-                    string cult = (sheet.Cells[2, col] as Excel.Range).Text.ToString();
+                    List<Cell> cells = row.Elements<Cell>().ToList();
 
-                    if (String.IsNullOrEmpty(cult))
-                        break;
+                    string resourceSrc = GetCellValue(FindFixedCell(ExcelFixedColumnNames.FileSource, cells), shareStringPart);
 
-                    ResourceData.ResourceLocalizedRow lr = rd.ResourceLocalized.NewResourceLocalizedRow();
+                    if (!String.IsNullOrEmpty(resourceSrc))
+                    {
+                        ResourceData.ResourceRow r = rd.Resource.NewResourceRow();
 
-                    lr.Culture = cult;
-                    lr.Key = (sheet.Cells[row, 3] as Excel.Range).Text.ToString();
-                    lr.Value = (sheet.Cells[row, col] as Excel.Range).Text.ToString();
-                    lr.ParentId = r.Id;
+                        r.FileSource = resourceSrc;
+                        r.FileDestination = GetCellValue(FindFixedCell(ExcelFixedColumnNames.FileDest, cells), shareStringPart);
+                        r.Key = GetCellValue(FindFixedCell(ExcelFixedColumnNames.Key, cells), shareStringPart);
+                        r.Value = GetCellValue(FindFixedCell(ExcelFixedColumnNames.Value, cells), shareStringPart);
 
-                    lr.SetParentRow(r);
+                        foreach (string culture in cultures.Keys)
+                        {
+                            string columnName = cultures[culture];
 
-                    rd.ResourceLocalized.AddResourceLocalizedRow(lr);
+                            Cell cultureCell = cells.Where(c => GetColumnName(c.CellReference) == columnName).SingleOrDefault();
 
-                    col++;
+                            if (cultureCell != null)
+                            {
+                                ResourceData.ResourceLocalizedRow lr = rd.ResourceLocalized.NewResourceLocalizedRow();
+
+                                string localizedValue = GetCellValue(cultureCell, shareStringPart);
+
+                                lr.Culture = culture;
+                                lr.Key = r.Key;
+                                lr.Value = localizedValue;
+                                lr.ParentId = r.Id;
+
+                                lr.SetParentRow(r);
+
+                                rd.ResourceLocalized.AddResourceLocalizedRow(lr);
+                            }
+                        }
+
+                        rd.Resource.AddResourceRow(r);
+                          
+                    }
                 }
 
-                row++;
-            }
-
+                spreadsheetDocument.Close();
+            } 
+            
             rd.AcceptChanges();
 
-            wb.Close(false, m_objOpt, m_objOpt);
-
-            app.Quit();
-            ReleaseObj(app);
-            app = null;
-
             return rd;
+        }
+
+        private static string GetColumnName(string cellReference)
+        {
+            // Create a regular expression to match the column name portion of the cell name.
+            Regex regex = new Regex("[A-Za-z]+");
+            Match match = regex.Match(cellReference);
+
+            return match.Value;
+        }
+
+        // Given a cell name, parses the specified cell to get the row index.
+        private static uint GetRowIndex(string cellReference)
+        {
+            // Create a regular expression to match the row index portion the cell name.
+            Regex regex = new Regex(@"\d+");
+            Match match = regex.Match(cellReference);
+
+            return uint.Parse(match.Value);
+        }
+
+        private static string GetCellValue(Cell cell, SharedStringTablePart stringTablePart)
+        {
+            if (cell == null) return null;
+            if (cell.ChildElements.Count == 0) return null;
+            //Get the cell value. 
+            string value = cell.CellValue.InnerText;
+            //Look up the real value from shared string table. 
+            if ((cell.DataType != null) && (cell.DataType == CellValues.SharedString))
+                value = stringTablePart.SharedStringTable.ChildElements[Int32.Parse(value)].InnerText;
+
+            return value;
+        }
+
+        // Given a column name, a row index, and a WorksheetPart, inserts a cell into the worksheet. 
+        // If the cell already exists, returns it. 
+        private static Cell InsertCellInWorksheet(string columnName, uint rowIndex, WorksheetPart worksheetPart)
+        {
+            Worksheet worksheet = worksheetPart.Worksheet;
+            SheetData sheetData = worksheet.GetFirstChild<SheetData>();
+            string cellReference = columnName + rowIndex;
+
+            // If the worksheet does not contain a row with the specified row index, insert one.
+            Row row;
+            if (sheetData.Elements<Row>().Where(r => r.RowIndex == rowIndex).Count() != 0)
+            {
+                row = sheetData.Elements<Row>().Where(r => r.RowIndex == rowIndex).First();
+            }
+            else
+            {
+                row = new Row() { RowIndex = rowIndex };
+                sheetData.Append(row);
+            }
+
+            // If there is not a cell with the specified column name, insert one.  
+            if (row.Elements<Cell>().Where(c => c.CellReference.Value == columnName + rowIndex).Count() > 0)
+            {
+                return row.Elements<Cell>().Where(c => c.CellReference.Value == cellReference).First();
+            }
+            else
+            {
+                // Cells must be in sequential order according to CellReference. Determine where to insert the new cell.
+                Cell refCell = null;
+                foreach (Cell cell in row.Elements<Cell>())
+                {
+                    if (string.Compare(cell.CellReference.Value, cellReference, true) > 0)
+                    {
+                        refCell = cell;
+                        break;
+                    }
+                }
+
+                Cell newCell = new Cell() { CellReference = cellReference };
+                row.InsertBefore(newCell, refCell);
+
+                worksheet.Save();
+                return newCell;
+            }
+        }
+
+        private SharedStringTablePart GetSharedStringTablePart(WorkbookPart workbookPart)
+        {
+            SharedStringTablePart shareStringPart;
+            if (workbookPart.GetPartsOfType<SharedStringTablePart>().Count() > 0)
+                shareStringPart = workbookPart.GetPartsOfType<SharedStringTablePart>().First();
+            else
+                shareStringPart = workbookPart.AddNewPart<SharedStringTablePart>();
+
+            return shareStringPart;
+        }
+
+        private string GetCellCulture(SheetData sheetData, WorksheetPart worksheetPart, SharedStringTablePart sharedStringTablePart, string cellReference)
+        {
+            string columnName = GetColumnName(cellReference);
+
+            Cell cell = InsertCellInWorksheet(columnName, 2, worksheetPart);
+
+            if (cell == null)
+                return String.Empty;
+            else
+                return GetCellValue(cell, sharedStringTablePart);
+        }
+
+        private string GetCultureColumnName(int index)
+        {
+            string columnName = "E";
+
+            switch (index)
+            {
+                case 5:
+                    columnName = "E";
+                    break;
+                case 6:
+                    columnName = "F";
+                    break;
+                case 7:
+                    columnName = "G";
+                    break;
+                case 8:
+                    columnName = "H";
+                    break;
+                case 9:
+                    columnName = "I";
+                    break;
+                case 10:
+                    columnName = "J";
+                    break;
+                case 11:
+                    columnName = "K";
+                    break;
+                case 12:
+                    columnName = "L";
+                    break;
+                case 13:
+                    columnName = "M";
+                    break;
+                case 14:
+                    columnName = "N";
+                    break;
+            }
+
+            return columnName;
         }
 
         private ResourceData ResxToDataSet(string path, bool deepSearch, string[] cultureList, string[] excludeList, bool useFolderNamespacePrefix)
@@ -200,111 +411,179 @@ namespace XlsLocalizationTool
 
             string path = new FileInfo(xlsFile).DirectoryName;
 
-            Excel.Application app = new Excel.Application();
-            Excel.Workbook wb = app.Workbooks.Open(xlsFile,
-        0, false, 5, "", "", false, Excel.XlPlatform.xlWindows, "",
-        true, false, 0, true, false, false);
-
-            Excel.Sheets sheets = wb.Worksheets;
-
-            Excel.Worksheet sheet = (Excel.Worksheet)sheets.get_Item(1);
-
-            bool hasLanguage = true;
-            int col = 5;
-
-            while (hasLanguage)
+            using (SpreadsheetDocument spreadsheetDocument = SpreadsheetDocument.Open(xlsFile, true))
             {
+                WorkbookPart workbookPart = spreadsheetDocument.WorkbookPart;
+                WorksheetPart worksheetPart = workbookPart.WorksheetParts.First();
 
-                object val = (sheet.Cells[2, col] as Excel.Range).Text;
+                SharedStringTablePart shareStringPart = GetSharedStringTablePart(workbookPart);
 
-                if (val is string)
+                SheetData sheetData =
+                worksheetPart.Worksheet.Elements<SheetData>().First();
+
+                Dictionary<string, string> cultures = GetCulturesFromXls(sheetData, shareStringPart);
+
+                Dictionary<string, ResXResourceWriter> cultureWriters = new Dictionary<string,ResXResourceWriter>();
+                List<string> generatedfiles = new List<string>();
+
+                IEnumerable<Row> rows = sheetData.Elements<Row>().Where(r => r.RowIndex >= _firsDataRowIndex);
+
+                foreach (Row row in rows)
                 {
-                    if (!String.IsNullOrEmpty((string)val))
+                    List<Cell> cells = row.Elements<Cell>().ToList();
+
+                    string resourceSource = GetCellValue(FindFixedCell(ExcelFixedColumnNames.FileSource, cells), shareStringPart);
+                    string resourceDest = GetCellValue(FindFixedCell(ExcelFixedColumnNames.FileDest, cells), shareStringPart);
+                    string key = GetCellValue(FindFixedCell(ExcelFixedColumnNames.Key, cells), shareStringPart);
+
+                    if ((key is String) && !String.IsNullOrEmpty(key))
                     {
-                        string cult = (string)val;
-
-                        string pathCulture = path + @"\" + cult;
-
-                        if (!System.IO.Directory.Exists(pathCulture))
-                            System.IO.Directory.CreateDirectory(pathCulture);
-
-
-                        ResXResourceWriter rw = null;
-
-                        int row = 3;
-
-                        string fileSrc;
-                        string fileDest;
-                        bool readrow = true;
-
-                        while (readrow)
+                        foreach (string culture in cultures.Keys)
                         {
-                            fileSrc = (sheet.Cells[row, 1] as Excel.Range).Text.ToString();
-                            fileDest = (sheet.Cells[row, 2] as Excel.Range).Text.ToString();
+                            string columnName = cultures[culture];
 
-                            if (String.IsNullOrEmpty(fileDest))
-                                break;
+                            Cell cultureCell = cells.Where(c => GetColumnName(c.CellReference) == columnName).SingleOrDefault();
 
-                            string f = pathCulture + @"\" + JustStem(fileDest) + "." + cult + ".resx";
-
-                            if (cult.Equals(defaultLang, StringComparison.InvariantCultureIgnoreCase))
-                                f = pathCulture + @"\" + JustStem(fileDest) + ".resx";
-
-
-
-
-                            rw = new ResXResourceWriter(f);
-
-                            while (readrow)
+                            if (cultureCell != null)
                             {
+                                #region create a new writer for the current culture, and if culture file does not exists close the precedent writer and creates a new one
+                                
+                                string pathCulture = path + @"\" + culture;
 
-                                string key = (sheet.Cells[row, 3] as Excel.Range).Text.ToString();
-                                object data = (sheet.Cells[row, col] as Excel.Range).Text.ToString();
+                                if (!System.IO.Directory.Exists(pathCulture))
+                                    System.IO.Directory.CreateDirectory(pathCulture);
 
-                                Console.WriteLine(String.Format("[{0}] {1}", cult, key));
+                                string file = pathCulture + @"\" + JustStem(resourceDest) + "." + culture + ".resx";
 
-                                if ((key is String) && !String.IsNullOrEmpty(key))
+                                if (culture.Equals(defaultLang, StringComparison.InvariantCultureIgnoreCase))
+                                    file = pathCulture + @"\" + JustStem(resourceDest) + ".resx";
+
+                                if (!generatedfiles.Contains(file))
                                 {
-                                    string text = data as string;
-
-                                    if (!String.IsNullOrEmpty(text))
+                                    if (cultureWriters.ContainsKey(culture))
                                     {
-                                        text = text.Replace("\\r", "\r");
-                                        text = text.Replace("\\n", "\n");
-
-                                        rw.AddResource(new ResXDataNode(key, text));
+                                        if (cultureWriters[culture] is ResXResourceWriter)
+                                            cultureWriters[culture].Close();
                                     }
-
-                                    row++;
-
-                                    string file = (sheet.Cells[row, 2] as Excel.Range).Text.ToString();
-
-                                    if (file != fileDest)
-                                        break;
+                                    cultureWriters[culture] = new ResXResourceWriter(file);
+                                    generatedfiles.Add(file);
                                 }
-                                else
+                                #endregion
+
+                                Console.WriteLine(String.Format("[{0}] {1}", culture, key));
+
+                                string localizedValue = GetCellValue(cultureCell, shareStringPart);
+
+                                if (!String.IsNullOrEmpty(localizedValue))
                                 {
-                                    readrow = false;
+                                    localizedValue = localizedValue.Replace("\\r", "\r");
+                                    localizedValue = localizedValue.Replace("\\n", "\n");
+
+                                    cultureWriters[culture].AddResource(new ResXDataNode(key, localizedValue));
                                 }
                             }
-
-                            rw.Close();
-
                         }
                     }
-                    else
-                        hasLanguage = false;
                 }
-                else
-                    hasLanguage = false;
 
-                col++;
+                spreadsheetDocument.Close();
+
+                foreach (ResXResourceWriter rw in cultureWriters.Values)
+                {
+                    rw.Close();
+                }
             }
+        }
 
-            app.Quit();
-            ReleaseObj(app);
-            app = null;
+        public void XlsToUTF8Properties(string xlsFile, string defaultLang)
+        {
+            if (!File.Exists(xlsFile))
+                return;
 
+            string path = new FileInfo(xlsFile).DirectoryName;
+
+            using (SpreadsheetDocument spreadsheetDocument = SpreadsheetDocument.Open(xlsFile, true))
+            {
+                WorkbookPart workbookPart = spreadsheetDocument.WorkbookPart;
+                WorksheetPart worksheetPart = workbookPart.WorksheetParts.First();
+
+                SharedStringTablePart shareStringPart = GetSharedStringTablePart(workbookPart);
+
+                SheetData sheetData =
+                worksheetPart.Worksheet.Elements<SheetData>().First();
+
+                Dictionary<string, string> cultures = GetCulturesFromXls(sheetData, shareStringPart);
+
+                Dictionary<string, StreamWriter> cultureWriters = new Dictionary<string, StreamWriter>();
+                List<string> generatedfiles = new List<string>();
+
+                IEnumerable<Row> rows = sheetData.Elements<Row>().Where(r => r.RowIndex >= _firsDataRowIndex);
+
+                foreach (Row row in rows)
+                {
+                    List<Cell> cells = row.Elements<Cell>().ToList();
+
+                    string resourceSource = GetCellValue(FindFixedCell(ExcelFixedColumnNames.FileSource, cells), shareStringPart);
+                    string resourceDest = GetCellValue(FindFixedCell(ExcelFixedColumnNames.FileDest, cells), shareStringPart);
+                    string key = GetCellValue(FindFixedCell(ExcelFixedColumnNames.Key, cells), shareStringPart);
+
+                    if ((key is String) && !String.IsNullOrEmpty(key))
+                    {
+                        foreach (string culture in cultures.Keys)
+                        {
+                            string columnName = cultures[culture];
+
+                            Cell cultureCell = cells.Where(c => GetColumnName(c.CellReference) == columnName).SingleOrDefault();
+
+                            if (cultureCell != null)
+                            {
+                                #region create a new writer for the current culture, and if culture file does not exists close the precedent writer and creates a new one
+                                
+                                string pathCulture = path;
+
+                                if (!System.IO.Directory.Exists(pathCulture))
+                                    System.IO.Directory.CreateDirectory(pathCulture);
+
+                                string file = pathCulture + @"\" + JustStem(resourceDest) + "_" + culture + ".properties";
+
+                                if (culture.Equals(defaultLang, StringComparison.InvariantCultureIgnoreCase))
+                                    file = pathCulture + @"\" + JustStem(resourceDest) + ".properties";
+
+                                if (!generatedfiles.Contains(file))
+                                {
+                                    if (cultureWriters.ContainsKey(culture))
+                                    {
+                                        if (cultureWriters[culture] is StreamWriter)
+                                            cultureWriters[culture].Close();
+                                    }
+                                    cultureWriters[culture] = new StreamWriter(file);
+                                    generatedfiles.Add(file);
+                                }
+
+                                #endregion
+
+                                Console.WriteLine(String.Format("[{0}] {1}", culture, key));
+
+                                string localizedValue = GetCellValue(cultureCell, shareStringPart);
+
+                                if (!String.IsNullOrEmpty(localizedValue))
+                                {
+                                    localizedValue = localizedValue.Replace("\\", "&#92;").Replace("'", "&#39;").Replace("\n", "<br/>");
+
+                                    cultureWriters[culture].WriteLine("{0}={1}", key, localizedValue);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                spreadsheetDocument.Close();
+
+                foreach (TextWriter tw in cultureWriters.Values)
+                {
+                    tw.Close();
+                }
+            }
         }
 
         public void UpdateXls(string xlsFile, string projectRoot, bool deepSearch, string[] excludeList, bool useFolderNamespacePrefix)
@@ -403,119 +682,29 @@ namespace XlsLocalizationTool
             DataSetToXls(rd, xlsFile);
         }
 
-        public void XlsToUTF8Properties(string xlsFile, string defaultLang)
+        private Dictionary<string, string> GetCulturesFromXls(SheetData sheetData, SharedStringTablePart sharedStringTablePart)
         {
-            if (!File.Exists(xlsFile))
-                return;
+            #region Read Cultures Row
 
-            string path = new FileInfo(xlsFile).DirectoryName;
+            Dictionary<string, string> cultures = new Dictionary<string, string>();
 
-            Excel.Application app = new Excel.Application();
-            Excel.Workbook wb = app.Workbooks.Open(xlsFile,
-        0, false, 5, "", "", false, Excel.XlPlatform.xlWindows, "",
-        true, false, 0, true, false, false);
+            Row culturesRow = sheetData.Elements<Row>().Where(r => r.RowIndex == 2).SingleOrDefault();
 
-            Excel.Sheets sheets = wb.Worksheets;
+            List<Cell> cells = culturesRow.Elements<Cell>().ToList();
 
-            Excel.Worksheet sheet = (Excel.Worksheet)sheets.get_Item(1);
-
-            bool hasLanguage = true;
-            int col = 5;
-
-            while (hasLanguage)
+            foreach (Cell cell in cells)
             {
+                string culture = GetCellValue(cell, sharedStringTablePart);
 
-                object val = (sheet.Cells[2, col] as Excel.Range).Text;
-
-                if (val is string)
-                {
-                    if (!String.IsNullOrEmpty((string)val))
-                    {
-                        string cult = (string)val;
-
-                        string pathCulture = path;
-
-                        if (!System.IO.Directory.Exists(pathCulture))
-                            System.IO.Directory.CreateDirectory(pathCulture);
-
-
-                        TextWriter tw = null;
-                        //ResXResourceWriter rw = null;
-
-                        int row = 3;
-
-                        string fileSrc;
-                        string fileDest;
-                        bool readrow = true;
-
-                        while (readrow)
-                        {
-                            fileSrc = (sheet.Cells[row, 1] as Excel.Range).Text.ToString();
-                            fileDest = (sheet.Cells[row, 2] as Excel.Range).Text.ToString();
-
-                            if (String.IsNullOrEmpty(fileDest))
-                                break;
-
-                            string f = pathCulture + @"\" + JustStem(fileDest) + "_" + cult + ".properties";
-
-                            if (cult.Equals(defaultLang, StringComparison.InvariantCultureIgnoreCase))
-                                f = pathCulture + @"\" + JustStem(fileDest) + ".properties";
-
-                            tw = new StreamWriter(f);
-
-                            while (readrow)
-                            {
-
-                                string key = (sheet.Cells[row, 3] as Excel.Range).Text.ToString();
-                                object data = (sheet.Cells[row, col] as Excel.Range).Text.ToString();
-
-                                Console.WriteLine(String.Format("[{0}] {1}", cult, key));
-
-                                if ((key is String) && !String.IsNullOrEmpty(key))
-                                {
-                                    string text = data as string;
-
-                                    if (!String.IsNullOrEmpty(text))
-                                    {
-                                        text = text.Replace("\\", "&#92;");
-                                        text = text.Replace("'", "&#39;");
-                                        text = text.Replace("\n", "<br/>");
-                                        //text = HttpUtility.HtmlEncode(text);
-
-                                        //rw.AddResource(new ResXDataNode(key, text));
-                                        tw.WriteLine(key + "=" + text);
-                                    }
-
-                                    row++;
-
-                                    string file = (sheet.Cells[row, 2] as Excel.Range).Text.ToString();
-
-                                    if (file != fileDest)
-                                        break;
-                                }
-                                else
-                                {
-                                    readrow = false;
-                                }
-                            }
-
-                            //rw.Close();
-                            tw.Close();
-                        }
-                    }
-                    else
-                        hasLanguage = false;
+                if (!String.IsNullOrEmpty(culture))
+                { 
+                    cultures.Add(culture, GetColumnName(cell.CellReference));
                 }
-                else
-                    hasLanguage = false;
-
-                col++;
             }
 
-            app.Quit();
-            ReleaseObj(app);
-            app = null;
+            #endregion
 
+            return cultures;
         }
 
         private string[] GetCulturesFromDataSet(ResourceData rd)
@@ -668,39 +857,13 @@ namespace XlsLocalizationTool
             reader.Close();
         }
 
-        /// <summary>
-        /// Ensures that the Interop Application will be released correctly.
-        /// </summary>
-        /// <param name="obj">L'objet COM à tuer.</param>
-        private void ReleaseObj(object obj)
-        {
-            try
-            {
-                System.Runtime.InteropServices.Marshal.ReleaseComObject(obj);
-            }
-            catch
-            {
-                obj = null;
-            }
-            finally
-            {
-                GC.Collect();
-            }
-        }
-
         public void ShowXls(string xslFilePath)
         {
             if (!System.IO.File.Exists(xslFilePath))
                 return;
 
-            Excel.Application app = new Excel.Application();
-            Excel.Workbook wb = app.Workbooks.Open(xslFilePath,
-        0, false, 5, "", "", false, Excel.XlPlatform.xlWindows, "",
-        true, false, 0, true, false, false);
-
-            app.Visible = true;
+            System.Diagnostics.Process.Start(xslFilePath);
         }
-
 
         public static string AddBS(string cPath)
         {
