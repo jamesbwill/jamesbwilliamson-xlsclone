@@ -43,12 +43,6 @@ namespace XlsLocalizationTool
                 
                 RunCommandLine(infile, defaultLang, generateUtf8PropertiesFile);
             }
-            else
-            {
-                Application.EnableVisualStyles();
-                Application.SetCompatibleTextRenderingDefault(false);
-                Application.Run(new XlsLocalizationForm());
-            }
         }
 
         static void Usage()
@@ -70,11 +64,11 @@ namespace XlsLocalizationTool
                 if (file.Exists)
                 {
 
-                    if (file.Extension.Equals(".xls", StringComparison.InvariantCultureIgnoreCase) && generateUtf8PropertiesFile)
+                    if (file.Extension.Equals(".xlsx", StringComparison.InvariantCultureIgnoreCase) && generateUtf8PropertiesFile)
                     {
                         manager.XlsToUTF8Properties(infile, defaultLang);
                     }
-                    else if (file.Extension.Equals(".xls", StringComparison.InvariantCultureIgnoreCase) && !generateUtf8PropertiesFile) 
+                    else if (file.Extension.Equals(".xlsx", StringComparison.InvariantCultureIgnoreCase) && !generateUtf8PropertiesFile) 
                     {
                         manager.XlsToResx(infile, defaultLang);
                     }

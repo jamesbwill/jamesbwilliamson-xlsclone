@@ -83,7 +83,7 @@ namespace XlsLocalizationTool
         public const string TEST_PROPERTIES_RES2_JA_PATH   = TEST_PROPERTIES_DIR + "res2_ja.properties";
 
         [TestMethod]
-        [DeploymentItem(TEST_EXCEL_DIR + "excelSheet.xls")]
+        [DeploymentItem(TEST_EXCEL_DIR + "excelSheet.xlsx")]
         public void TestXlsToProperties()
         {
             string dir = Directory.GetCurrentDirectory() + "\\";
@@ -91,17 +91,17 @@ namespace XlsLocalizationTool
             if (!System.IO.Directory.Exists(dir))
                 System.IO.Directory.CreateDirectory(dir);
 
-            XlsLocalizationTool.Program.RunCommandLine(dir + "excelSheet.xls", "en", true);
-            Assert.IsTrue(CompareFiles(dir + "res1.properties",     TEST_PROPERTIES_RES1_EN_PATH));
-            Assert.IsTrue(CompareFiles(dir + "res1_fr.properties",  TEST_PROPERTIES_RES1_FR_PATH));
-            Assert.IsTrue(CompareFiles(dir + "res1_ja.properties",  TEST_PROPERTIES_RES1_JA_PATH));
-            Assert.IsTrue(CompareFiles(dir + "res2.properties",     TEST_PROPERTIES_RES2_EN_PATH));
-            Assert.IsTrue(CompareFiles(dir + "res2_fr.properties",  TEST_PROPERTIES_RES2_FR_PATH));
-            Assert.IsTrue(CompareFiles(dir + "res2_ja.properties",  TEST_PROPERTIES_RES2_JA_PATH));            
+            XlsLocalizationTool.Program.RunCommandLine(dir + "excelSheet.xlsx", "en", true);
+            Assert.IsTrue(CompareFiles(dir + "res1.properties", TEST_PROPERTIES_RES1_EN_PATH));
+            Assert.IsTrue(CompareFiles(dir + "res1_fr.properties", TEST_PROPERTIES_RES1_FR_PATH));
+            Assert.IsTrue(CompareFiles(dir + "res1_ja.properties", TEST_PROPERTIES_RES1_JA_PATH));
+            Assert.IsTrue(CompareFiles(dir + "res2.properties", TEST_PROPERTIES_RES2_EN_PATH));
+            Assert.IsTrue(CompareFiles(dir + "res2_fr.properties", TEST_PROPERTIES_RES2_FR_PATH));
+            Assert.IsTrue(CompareFiles(dir + "res2_ja.properties", TEST_PROPERTIES_RES2_JA_PATH));
         }
 
         [TestMethod]
-        [DeploymentItem(TEST_EXCEL_DIR + "excelSheet.xls")]
+        [DeploymentItem(TEST_EXCEL_DIR + "excelSheet.xlsx")]
         public void TestXlsToResx()
         {
             string dir = Directory.GetCurrentDirectory() + "\\";
@@ -109,7 +109,7 @@ namespace XlsLocalizationTool
             if (!System.IO.Directory.Exists(dir))
                 System.IO.Directory.CreateDirectory(dir);
 
-            XlsLocalizationTool.Program.RunCommandLine(dir + "excelSheet.xls", "en", false);
+            XlsLocalizationTool.Program.RunCommandLine(dir + "excelSheet.xlsx", "en", false);
             Assert.IsTrue(CompareFiles(dir + "en\\res1.resx", TEST_RESX_RES1_EN_PATH));
             Assert.IsTrue(CompareFiles(dir + "fr\\res1.fr.resx", TEST_RESX_RES1_FR_PATH));
             Assert.IsTrue(CompareFiles(dir + "ja\\res1.ja.resx", TEST_RESX_RES1_JA_PATH));

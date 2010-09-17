@@ -327,7 +327,7 @@ namespace XlsLocalizationTool {
         ///</summary>
         [global::System.Serializable()]
         [global::System.Xml.Serialization.XmlSchemaProviderAttribute("GetTypedTableSchema")]
-        public partial class ResourceDataTable : global::System.Data.DataTable, global::System.Collections.IEnumerable {
+        public partial class ResourceDataTable : global::System.Data.TypedTableBase<ResourceRow> {
             
             private global::System.Data.DataColumn columnFileSource;
             
@@ -467,12 +467,6 @@ namespace XlsLocalizationTool {
             public ResourceRow FindById(int Id) {
                 return ((ResourceRow)(this.Rows.Find(new object[] {
                             Id})));
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public virtual global::System.Collections.IEnumerator GetEnumerator() {
-                return this.Rows.GetEnumerator();
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -650,7 +644,7 @@ namespace XlsLocalizationTool {
         ///</summary>
         [global::System.Serializable()]
         [global::System.Xml.Serialization.XmlSchemaProviderAttribute("GetTypedTableSchema")]
-        public partial class ResourceLocalizedDataTable : global::System.Data.DataTable, global::System.Collections.IEnumerable {
+        public partial class ResourceLocalizedDataTable : global::System.Data.TypedTableBase<ResourceLocalizedRow> {
             
             private global::System.Data.DataColumn columnCulture;
             
@@ -793,12 +787,6 @@ namespace XlsLocalizationTool {
             public ResourceLocalizedRow FindById(int Id) {
                 return ((ResourceLocalizedRow)(this.Rows.Find(new object[] {
                             Id})));
-            }
-            
-            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public virtual global::System.Collections.IEnumerator GetEnumerator() {
-                return this.Rows.GetEnumerator();
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
