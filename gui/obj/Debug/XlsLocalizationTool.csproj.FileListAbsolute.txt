@@ -1,0 +1,14 @@
+C:\Sviluppo\xls-localization-tool\src\bin\Debug\XlsLocalizationTool.exe.config
+C:\Sviluppo\xls-localization-tool\src\obj\Debug\ResolveAssemblyReference.cache
+C:\Sviluppo\xls-localization-tool\src\obj\Debug\XlsLocalizationTool.Properties.Resources.resources
+C:\Sviluppo\xls-localization-tool\src\obj\Debug\XlsLocalizationTool.XlsLocalizationForm.resources
+C:\Sviluppo\xls-localization-tool\src\obj\Debug\GenerateResource.read.1.tlog
+C:\Sviluppo\xls-localization-tool\src\obj\Debug\GenerateResource.write.1.tlog
+C:\Sviluppo\xls-localization-tool\src\bin\Debug\XlsLocalizationTool.exe
+C:\Sviluppo\xls-localization-tool\src\bin\Debug\XlsLocalizationTool.pdb
+C:\Sviluppo\xls-localization-tool\src\bin\Debug\WizardBase.dll
+C:\Sviluppo\xls-localization-tool\src\obj\Debug\XlsLocalizationTool.exe
+C:\Sviluppo\xls-localization-tool\src\obj\Debug\XlsLocalizationTool.pdb
+C:\Sviluppo\xls-localization-tool\gui\bin\Debug\XlsLocalizationTool.exe.config
+C:\Sviluppo\xls-localization-tool\gui\obj\Debug\XlsLocalizationTool.exe
+C:\Sviluppo\xls-localization-tool\gui\obj\Debug\XlsLocalizationTool.pdb
