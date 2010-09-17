@@ -13,11 +13,37 @@ namespace XlsLocalizationTool
     [TestClass]
     public class ProgramTest
     {
+
+        #region paths
+        public const string OUPUT_DIRECTORY = "tmp\\";
+        public const string SOURCE_RES_DIR = "..\\..\\..\\..\\test\\res\\";
+
+        public const string SOURCE_RESX_DIR = SOURCE_RES_DIR + "resx\\";
+        public const string SOURCE_RESX_RES1_EN_PATH = SOURCE_RESX_DIR + "en\\res1.en.resx";
+        public const string SOURCE_RESX_RES1_FR_PATH = SOURCE_RESX_DIR + "fr\\res1.fr.resx";
+        public const string SOURCE_RESX_RES1_JA_PATH = SOURCE_RESX_DIR + "ja\\res1.ja.resx";
+        public const string SOURCE_RESX_RES2_EN_PATH = SOURCE_RESX_DIR + "en\\res2.en.resx";
+        public const string SOURCE_RESX_RES2_FR_PATH = SOURCE_RESX_DIR + "fr\\res2.fr.resx";
+        public const string SOURCE_RESX_RES2_JA_PATH = SOURCE_RESX_DIR + "ja\\res2.ja.resx";
+
+        public const string SOURCE_PROPERTIES_DIR = SOURCE_RES_DIR + "properties\\";
+        public const string SOURCE_PROPERTIES_RES1_EN_PATH = SOURCE_PROPERTIES_DIR + "res1_en.properties";
+        public const string SOURCE_PROPERTIES_RES1_FR_PATH = SOURCE_PROPERTIES_DIR + "res1_fr.properties";
+        public const string SOURCE_PROPERTIES_RES1_JA_PATH = SOURCE_PROPERTIES_DIR + "res1_ja.properties";
+        public const string SOURCE_PROPERTIES_RES2_EN_PATH = SOURCE_PROPERTIES_DIR + "res2_en.properties";
+        public const string SOURCE_PROPERTIES_RES2_FR_PATH = SOURCE_PROPERTIES_DIR + "res2_fr.properties";
+        public const string SOURCE_PROPERTIES_RES2_JA_PATH = SOURCE_PROPERTIES_DIR + "res2_ja.properties";
+
+        public const string XLS_FILE_NAME = "excelSheet.xls";
+        public const string INPUT_XLS_FILE_PATH = SOURCE_RES_DIR + "excel\\" + XLS_FILE_NAME;
+        public const string OUTPUT_XLS_FILE_PATH = OUPUT_DIRECTORY + XLS_FILE_NAME;
+
+        public const string INPUT_XLSX_FILE_PATH = SOURCE_RES_DIR + "excel\\" + XLS_FILE_NAME;
+        public const string OUTPUT_XLSX_FILE_PATH = OUPUT_DIRECTORY + XLS_FILE_NAME;
+        #endregion
+
         public ProgramTest()
         {
-            //
-            // TODO: Add constructor logic here
-            //
         }
 
         private TestContext testContextInstance;
@@ -51,85 +77,122 @@ namespace XlsLocalizationTool
         // public static void MyClassCleanup() { }
         //
         // Use TestInitialize to run code before running each test 
-        // [TestInitialize()]
-        // public void MyTestInitialize() { }
-        //
+        //[TestInitialize()]
+        //public void MyTestInitialize() {}
+
+        enum ItemToDeploy
+        {
+            xls,
+            xlsx,
+            resx,
+            properties
+        }
+
+        private void deploy(ItemToDeploy item)
+        {
+            DirectoryInfo targetDirectory = new DirectoryInfo(OUPUT_DIRECTORY);
+            try
+            {
+                targetDirectory.Delete(true); //delete directory, subdirectories and files
+            } catch (DirectoryNotFoundException) {}
+
+            targetDirectory.Create();
+
+            switch (item)
+            {
+                case ItemToDeploy.xls:
+                    deployXlsFile();
+                    break;
+                case ItemToDeploy.xlsx:
+                    deployXlsxFile();
+                    break;
+                case ItemToDeploy.resx:
+                case ItemToDeploy.properties:
+                default:
+                    throw new Exception("unsupported item");
+            }
+        }
+
+        private void deployXlsFile()
+        {
+            new FileInfo(INPUT_XLS_FILE_PATH).CopyTo(OUTPUT_XLS_FILE_PATH);
+        }
+
+        private void deployXlsxFile()
+        {
+            new FileInfo(INPUT_XLSX_FILE_PATH).CopyTo(OUTPUT_XLSX_FILE_PATH);
+        }
+
         // Use TestCleanup to run code after each test has run
         // [TestCleanup()]
         // public void MyTestCleanup() { }
         //
         #endregion
 
-
-        //relative path for DeploymentItem
-        public const string TEST_RES_DIR = ".\\res\\";
-        public const string TEST_EXCEL_DIR = TEST_RES_DIR + "excel\\";
-
-        //relative path for the test methods
-        public const string TEST_RESX_DIR = "..\\..\\..\\res\\resx\\";
-        public const string TEST_RESX_RES1_EN_PATH = TEST_RESX_DIR + "en\\res1.en.resx";
-        public const string TEST_RESX_RES1_FR_PATH = TEST_RESX_DIR + "fr\\res1.fr.resx";
-        public const string TEST_RESX_RES1_JA_PATH = TEST_RESX_DIR + "ja\\res1.ja.resx";
-        public const string TEST_RESX_RES2_EN_PATH = TEST_RESX_DIR + "en\\res2.en.resx";
-        public const string TEST_RESX_RES2_FR_PATH = TEST_RESX_DIR + "fr\\res2.fr.resx";
-        public const string TEST_RESX_RES2_JA_PATH = TEST_RESX_DIR + "ja\\res2.ja.resx";
-
-        public const string TEST_PROPERTIES_DIR = "..\\..\\..\\res\\properties\\";
-        public const string TEST_PROPERTIES_RES1_EN_PATH   = TEST_PROPERTIES_DIR + "res1_en.properties";
-        public const string TEST_PROPERTIES_RES1_FR_PATH   = TEST_PROPERTIES_DIR + "res1_fr.properties";
-        public const string TEST_PROPERTIES_RES1_JA_PATH   = TEST_PROPERTIES_DIR + "res1_ja.properties";
-        public const string TEST_PROPERTIES_RES2_EN_PATH   = TEST_PROPERTIES_DIR + "res2_en.properties";
-        public const string TEST_PROPERTIES_RES2_FR_PATH   = TEST_PROPERTIES_DIR + "res2_fr.properties";
-        public const string TEST_PROPERTIES_RES2_JA_PATH   = TEST_PROPERTIES_DIR + "res2_ja.properties";
-
         [TestMethod]
-        [DeploymentItem(TEST_EXCEL_DIR + "excelSheet.xlsx")]
         public void TestXlsToProperties()
         {
-            string dir = Directory.GetCurrentDirectory() + "\\";
+            deploy(ItemToDeploy.xls);
 
-            if (!System.IO.Directory.Exists(dir))
-                System.IO.Directory.CreateDirectory(dir);
+            XlsLocalizationManager manager = new XlsLocalizationManager();
 
-            XlsLocalizationTool.Program.RunCommandLine(dir + "excelSheet.xlsx", "en", true);
-            Assert.IsTrue(CompareFiles(dir + "res1.properties", TEST_PROPERTIES_RES1_EN_PATH));
-            Assert.IsTrue(CompareFiles(dir + "res1_fr.properties", TEST_PROPERTIES_RES1_FR_PATH));
-            Assert.IsTrue(CompareFiles(dir + "res1_ja.properties", TEST_PROPERTIES_RES1_JA_PATH));
-            Assert.IsTrue(CompareFiles(dir + "res2.properties", TEST_PROPERTIES_RES2_EN_PATH));
-            Assert.IsTrue(CompareFiles(dir + "res2_fr.properties", TEST_PROPERTIES_RES2_FR_PATH));
-            Assert.IsTrue(CompareFiles(dir + "res2_ja.properties", TEST_PROPERTIES_RES2_JA_PATH));
+            manager.XlsToUTF8Properties(new FileInfo(OUTPUT_XLS_FILE_PATH).FullName, "en");
+
+            Assert.IsTrue(CompareFiles(OUPUT_DIRECTORY + "res1.properties", SOURCE_PROPERTIES_RES1_EN_PATH));
+            Assert.IsTrue(CompareFiles(OUPUT_DIRECTORY + "res1_fr.properties", SOURCE_PROPERTIES_RES1_FR_PATH));
+            Assert.IsTrue(CompareFiles(OUPUT_DIRECTORY + "res1_ja.properties", SOURCE_PROPERTIES_RES1_JA_PATH));
+            Assert.IsTrue(CompareFiles(OUPUT_DIRECTORY + "res2.properties", SOURCE_PROPERTIES_RES2_EN_PATH));
+            Assert.IsTrue(CompareFiles(OUPUT_DIRECTORY + "res2_fr.properties", SOURCE_PROPERTIES_RES2_FR_PATH));
+            Assert.IsTrue(CompareFiles(OUPUT_DIRECTORY + "res2_ja.properties", SOURCE_PROPERTIES_RES2_JA_PATH));
         }
 
         [TestMethod]
-        [DeploymentItem(TEST_EXCEL_DIR + "excelSheet.xlsx")]
         public void TestXlsToResx()
         {
-            string dir = Directory.GetCurrentDirectory() + "\\";
+            deploy(ItemToDeploy.xls);
 
-            if (!System.IO.Directory.Exists(dir))
-                System.IO.Directory.CreateDirectory(dir);
+            XlsLocalizationManager manager = new XlsLocalizationManager();
 
-            XlsLocalizationTool.Program.RunCommandLine(dir + "excelSheet.xlsx", "en", false);
-            Assert.IsTrue(CompareFiles(dir + "en\\res1.resx", TEST_RESX_RES1_EN_PATH));
-            Assert.IsTrue(CompareFiles(dir + "fr\\res1.fr.resx", TEST_RESX_RES1_FR_PATH));
-            Assert.IsTrue(CompareFiles(dir + "ja\\res1.ja.resx", TEST_RESX_RES1_JA_PATH));
+            manager.XlsToResx(new FileInfo(OUTPUT_XLS_FILE_PATH).FullName, "en");
+            Assert.IsTrue(CompareFiles(OUPUT_DIRECTORY + "en\\res1.resx", SOURCE_RESX_RES1_EN_PATH));
+            Assert.IsTrue(CompareFiles(OUPUT_DIRECTORY + "fr\\res1.fr.resx", SOURCE_RESX_RES1_FR_PATH));
+            Assert.IsTrue(CompareFiles(OUPUT_DIRECTORY + "ja\\res1.ja.resx", SOURCE_RESX_RES1_JA_PATH));
 
-            Assert.IsTrue(CompareFiles(dir + "en\\res1.resx", TEST_RESX_RES1_EN_PATH));
-            Assert.IsTrue(CompareFiles(dir + "fr\\res1.fr.resx", TEST_RESX_RES1_FR_PATH));
-            Assert.IsTrue(CompareFiles(dir + "ja\\res1.ja.resx", TEST_RESX_RES1_JA_PATH));
+            Assert.IsTrue(CompareFiles(OUPUT_DIRECTORY + "en\\res1.resx", SOURCE_RESX_RES1_EN_PATH));
+            Assert.IsTrue(CompareFiles(OUPUT_DIRECTORY + "fr\\res1.fr.resx", SOURCE_RESX_RES1_FR_PATH));
+            Assert.IsTrue(CompareFiles(OUPUT_DIRECTORY + "ja\\res1.ja.resx", SOURCE_RESX_RES1_JA_PATH));
         }
 
-
-        private bool CompareFiles(string File1, string File2)
+        [TestMethod]
+        public void TestXlsxToProperties()
         {
-            FileInfo FI1 = new FileInfo(File1);
-            FileInfo FI2 = new FileInfo(File2);
+            deploy(ItemToDeploy.xlsx);
 
-            if (FI1.Length != FI2.Length)
+            XlsLocalizationManager manager = new XlsLocalizationManager();
+
+            manager.XlsToUTF8Properties(new FileInfo(OUTPUT_XLSX_FILE_PATH).FullName, "en");
+
+            Assert.IsTrue(CompareFiles(OUPUT_DIRECTORY + "res1.properties", SOURCE_PROPERTIES_RES1_EN_PATH));
+            Assert.IsTrue(CompareFiles(OUPUT_DIRECTORY + "res1_fr.properties", SOURCE_PROPERTIES_RES1_FR_PATH));
+            Assert.IsTrue(CompareFiles(OUPUT_DIRECTORY + "res1_ja.properties", SOURCE_PROPERTIES_RES1_JA_PATH));
+            Assert.IsTrue(CompareFiles(OUPUT_DIRECTORY + "res2.properties", SOURCE_PROPERTIES_RES2_EN_PATH));
+            Assert.IsTrue(CompareFiles(OUPUT_DIRECTORY + "res2_fr.properties", SOURCE_PROPERTIES_RES2_FR_PATH));
+            Assert.IsTrue(CompareFiles(OUPUT_DIRECTORY + "res2_ja.properties", SOURCE_PROPERTIES_RES2_JA_PATH));
+        }
+
+        private bool CompareFiles(string file1, string file2)
+        {
+            FileInfo fileInfo1 = new FileInfo(file1);
+            FileInfo fileInfo2 = new FileInfo(file2);
+
+            if (!fileInfo1.Exists) throw new Exception("file1 does not exist");
+            if (!fileInfo2.Exists) throw new Exception("file2 does not exist");
+
+            if (fileInfo1.Length != fileInfo2.Length)
                 return false;
 
-            byte[] bytesFile1 = File.ReadAllBytes(File1);
-            byte[] bytesFile2 = File.ReadAllBytes(File2);
+            byte[] bytesFile1 = File.ReadAllBytes(file1);
+            byte[] bytesFile2 = File.ReadAllBytes(file2);
 
             if (bytesFile1.Length != bytesFile2.Length)
                 return false;

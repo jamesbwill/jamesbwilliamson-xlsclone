@@ -3,16 +3,40 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XlsLocalizationTool", "XlsLocalizationTool.csproj", "{9A301D6B-D2B5-4C16-8F46-BF7892767FDB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XlsLocalizationToolTest", "..\test\XlsLocalizationToolTest.csproj", "{E5DA75B8-BBE4-4823-9498-20EDD807C77C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{63EDC507-3535-4EFB-8D35-AD80C3B027E9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Debug|Win32 = Debug|Win32
 		Release|Any CPU = Release|Any CPU
+		Release|Mixed Platforms = Release|Mixed Platforms
+		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{9A301D6B-D2B5-4C16-8F46-BF7892767FDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9A301D6B-D2B5-4C16-8F46-BF7892767FDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A301D6B-D2B5-4C16-8F46-BF7892767FDB}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{9A301D6B-D2B5-4C16-8F46-BF7892767FDB}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{9A301D6B-D2B5-4C16-8F46-BF7892767FDB}.Debug|Win32.ActiveCfg = Debug|Any CPU
 		{9A301D6B-D2B5-4C16-8F46-BF7892767FDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9A301D6B-D2B5-4C16-8F46-BF7892767FDB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A301D6B-D2B5-4C16-8F46-BF7892767FDB}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{9A301D6B-D2B5-4C16-8F46-BF7892767FDB}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{9A301D6B-D2B5-4C16-8F46-BF7892767FDB}.Release|Win32.ActiveCfg = Release|Any CPU
+		{E5DA75B8-BBE4-4823-9498-20EDD807C77C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E5DA75B8-BBE4-4823-9498-20EDD807C77C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E5DA75B8-BBE4-4823-9498-20EDD807C77C}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{E5DA75B8-BBE4-4823-9498-20EDD807C77C}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{E5DA75B8-BBE4-4823-9498-20EDD807C77C}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{E5DA75B8-BBE4-4823-9498-20EDD807C77C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E5DA75B8-BBE4-4823-9498-20EDD807C77C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E5DA75B8-BBE4-4823-9498-20EDD807C77C}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{E5DA75B8-BBE4-4823-9498-20EDD807C77C}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{E5DA75B8-BBE4-4823-9498-20EDD807C77C}.Release|Win32.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -76,7 +76,7 @@ namespace XlsLocalizationTool
                     {
                         manager.XlsToResx(infile, defaultLang);
                     }
-                                    }
+                }
                 else
                 {
                     throw new Exception(String.Format("{0} doesn't exist or isnt a xls/xlsx file", infile));
